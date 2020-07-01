@@ -1,10 +1,14 @@
-from keras.datasets import mnist # download mnist data and split into train and test sets
+from keras.datasets import mnist, cifar10 # download mnist data and split into train and test sets
 import matplotlib.pyplot as plt # plot the first image in the dataset
 from keras.utils import to_categorical
 from keras.models import Sequential
 from keras.layers import Dense, Conv2D, Flatten
 from tensorflow import keras
 
+"""
+CIFAR-10 dataset consists of 60000 32x32 colour images in 10 classes, with 6000 images per class.
+There are 50000 training images and 10000 test images.
+"""
 
 class Detector:
     def __init__(self, path):
@@ -16,12 +20,13 @@ class Detector:
         self.y_train = None
         self.x_test = None
         self.y_test = None
+        self.res = 32
 
     def load_data(self, x_train, y_train, x_test, y_test):
-        (X_train, y_train), (X_test, y_test) = mnist.load_data()
+        (X_train, y_train), (X_test, y_test) = cifar10.load_data()
         # reshape data to fit model
-        X_train = X_train.reshape(60000, 28, 28, 1)
-        X_test = X_test.reshape(10000, 28, 28, 1)
+        X_train = X_train.reshape(50000, self.res, self.res, 1)
+        X_test = X_test.reshape(10000, self.res, self.res, 1)
 
         # one-hot encode target column
         y_train = to_categorical(y_train)
@@ -43,7 +48,7 @@ class Detector:
 
     def __create_model(self):
         self.model = Sequential()  # add model layers
-        self.model.add(Conv2D(64, kernel_size=3, activation="relu", input_shape=(28, 28, 1)))
+        self.model.add(Conv2D(64, kernel_size=3, activation="relu", input_shape=(self.res, self.res, 1)))
         self.model.add(Conv2D(32, kernel_size=3, activation='relu'))
         self.model.add(Flatten())
         self.model.add(Dense(10, activation='softmax'))
@@ -67,12 +72,13 @@ class Detector:
 
 def test_detector():
     detector = Detector('./')
-
+    # real interesting guide https://github.com/jerett/Keras-CIFAR10/blob/master/softmax.ipynb
     (X_train, y_train), (X_test, y_test) = mnist.load_data()
     detector.load_data(X_train, y_train, X_test, y_train)
-    detector.build_model()
-    detector.train_model()
-    detector.save_model("./my_model")
+    #detector.build_model()
+    #detector.train_model()
+    #detector.save_model("./my_model")
+    detector.load_model("./my_model")
     print(detector.predict())
 
 
