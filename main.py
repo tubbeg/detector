@@ -59,88 +59,10 @@ class Detector:
     def load_model(self, model):
         if model is None:
             raise Exception("model None!")
-        keras.models.load_model(model)
+        self.model = keras.models.load_model(model)
 
     def predict(self):
         return self.model.predict(self.x_test[:4])
-
-def main2():
-    (X_train, y_train), (X_test, y_test) = mnist.load_data()
-    # reshape data to fit model
-    X_train = X_train.reshape(60000, 28, 28, 1)
-    X_test = X_test.reshape(10000, 28, 28, 1)
-
-    # one-hot encode target column
-    y_train = to_categorical(y_train)
-    y_test = to_categorical(y_test)
-
-    print(y_train[0])
-    model = build_model()
-    train_model(model, X_train, y_train, X_test, y_test)
-    predict(model, X_test)
-
-def build_model():
-    model = create_model()
-    compile_model(model)
-    return model
-
-
-def create_model():
-
-    # create model
-    model = Sequential()  # add model layers
-    model.add(Conv2D(64, kernel_size=3, activation="relu", input_shape = (28, 28, 1)))
-    model.add(Conv2D(32, kernel_size=3, activation='relu'))
-    model.add(Flatten())
-    model.add(Dense(10, activation='softmax'))
-    return model
-
-def compile_model(model):
-
-    # compile model using accuracy to measure model performance
-    model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
-
-def train_model(model, X_train, y_train, X_test, y_test):
-    # train the model
-    model.fit(X_train, y_train, validation_data=(X_test, y_test), epochs=2)
-
-def predict(model, X_test):
-    # predict first 4 images in the test set
-    print(model.predict(X_test[:4]))
-
-
-def main():
-    (X_train, y_train), (X_test, y_test) = mnist.load_data()
-    plt.imshow(X_train[0])
-    plt.show()
-    # reshape data to fit model
-    X_train = X_train.reshape(60000, 28, 28, 1)
-    X_test = X_test.reshape(10000, 28, 28, 1)
-
-    # one-hot encode target column
-    y_train = to_categorical(y_train)
-    y_test = to_categorical(y_test)
-
-    print(y_train[0])
-
-    # create model
-    model = Sequential()  # add model layers
-    model.add(Conv2D(64, kernel_size=3, activation="relu", input_shape = (28, 28, 1)))
-    model.add(Conv2D(32, kernel_size=3, activation='relu'))
-    model.add(Flatten())
-    model.add(Dense(10, activation='softmax'))
-
-    # compile model using accuracy to measure model performance
-    model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
-
-    # train the model
-    model.fit(X_train, y_train, validation_data=(X_test, y_test), epochs=2)
-
-    # predict first 4 images in the test set
-    print(model.predict(X_test[:4]))
-
-    # actual results for first 4 images in test set
-    print(y_test[:4])
 
 
 def test_detector():
@@ -150,8 +72,12 @@ def test_detector():
     detector.load_data(X_train, y_train, X_test, y_train)
     detector.build_model()
     detector.train_model()
-    detector.save_model()
+    detector.save_model("./my_model")
     print(detector.predict())
+
+
+def main():
+    test_detector()
 
 
 if __name__ == '__main__':
